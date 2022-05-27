@@ -8,19 +8,24 @@ tokens=("INICIO",
 "TEXTO",
 "NUMERO", 
 "CODING", 
-"CATEGORIA",
+"ACATEGORIA",
+"CCATEGORIA",
 "ACHANNEL",
 "CCHANNEL", 
-"COPY",
-"DESCRIPTION",
+"ACOPY",
+"CCOPY",
+"ADESCRIPTION",
+"CDESCRIPTION",
 "AIMAGEN",
 "CIMAGEN", 
 "AITEM",
 "CITEM",
 "ITEM",
 "ITEMS",
-"LINK", 
-"TITULO",  
+"ALINK",
+"CLINK",
+"ATITULO",
+"CTITULO",
 "URL",
 "HEIGHT",
 "WIDTH"
@@ -31,6 +36,9 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)#no se que hace esto
 def t_s(t):
     r'\ '
+
+def t_TEXTO(t):
+    r'[\s\S^&^<^>]+'
 
 def t_ARSS(t):
     '\<rss([\ ]+version[\ ]*=[\ ]*"\d.\d"[\ ]*)?>'
@@ -51,24 +59,47 @@ def t_ACHANNEL(t):
 def t_CCHANNEL(t):
     r'</channel>'
     return t
- 
-def t_TITULO(t):
-    '<title>[\s\S]*</title>'
+
+
+
+def t_ATITULO(t):
+    r'<title>'
     return t  
 
-def t_LINK(t):  
-    r'<link>(\S)*:(\S)*<\/link>'
-    return t 
-def t_CATEGORIA(t):
-    r'<category>.*</category>'
+def t_CTITULO(t):
+    r'</title>'
     return t
 
-def t_COPY(t):
-    '<copyright>[\s\S]*</copyright>'
+def t_ALINK(t):  
+    r'<link>'
+    return t
+
+def t_CLINK(t):
+    r'</link>'   
+    return t
+
+def t_ACATEGORIA(t):
+    r'<category>'
+    return t
+
+def t_CCATEGORIA(t):
+    r'</category>'
+    return t
+
+def t_ACOPY(t):
+    r'<copyright>'
     return t 
 
-def t_DESCRIPTION(t):
-    r'<description>[\s\S]*</description>'
+def t_CCOPY(t):
+    r'</copyright>'
+    return t
+
+def t_ADESCRIPTION(t):
+    r'<description>'
+    return t
+
+def t_CDESCRIPCION(t):
+    r'</description>'
     return t
 
 def t_AIMAGEN(t):
@@ -86,8 +117,9 @@ def t_AITEM(t):
 def t_CITEM(t):
     '</item>'
     return t
+
 def t_URL(t):
-    r'<url>[\ ]*(\S)*:(\S)*[\ ]*</url>'
+    r'<url>[\s\S^&^<^>]*</url>'
     
     return t
 
@@ -111,7 +143,7 @@ lexer= lex.lex() #debug=1 si queremos ver q hace internamente
 
 
 #si empieza en espacios vacios es invalido el RSS
-#si encuentra los siguientes caracteres es invalido: & < >
+#si encuentra los siguientes caracteres es invalido: & < > sin tag
 
 lexer.input('''
 <?xml version="1.0" encoding="UTF-8" ?>
