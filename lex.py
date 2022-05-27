@@ -53,22 +53,22 @@ def t_CCHANNEL(t):
     return t
  
 def t_TITULO(t):
-    '<title>[\s\S]*</title>'
+    '<title>[^<>&]+</title>'
     return t  
 
 def t_LINK(t):  
-    r'<link>(\S)*:(\S)*<\/link>'
+    r'<link>[^<>&]+:[^<>]+<\/link>'
     return t 
 def t_CATEGORIA(t):
     r'<category>.*</category>'
     return t
 
 def t_COPY(t):
-    '<copyright>[\s\S]*</copyright>'
+    '<copyright>[^<>&]+</copyright>'
     return t 
 
 def t_DESCRIPTION(t):
-    r'<description>[\s\S]*</description>'
+    '<description>[^<>&]+</description>'
     return t
 
 def t_AIMAGEN(t):
@@ -87,7 +87,7 @@ def t_CITEM(t):
     '</item>'
     return t
 def t_URL(t):
-    r'<url>[\ ]*(\S)*:(\S)*[\ ]*</url>'
+    r'<url>([\ ]*[^<>&]+:[^<>]+[\ ]*)?</url>'
     
     return t
 
@@ -119,7 +119,7 @@ lexer.input('''
 <rss version="2.0"> 
 <rss>       
 <channel>
-<title>RSS de la cátedra de Sintaxis y Semántica de Lenguajes </title>
+<title>RSS de la cátedra de Si<&>ntaxis y Semántica de Lenguajes </title>
 <link>tox:DFB4958A86122ACF81BB852DBC767DB8A3A7281A8EDBC83121B30C294E295869121B298FEEA2</link>
 <description>Sintaxis y Semántica de Lenguajes de la U.T.N.F.R.Resistencia. </description>
 <category>Practica</category>
