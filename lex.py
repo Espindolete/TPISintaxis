@@ -37,8 +37,6 @@ def t_newline(t):
 def t_s(t):
     r'\ '
 
-def t_TEXTO(t):
-    r'[\s\S^&^<^>]+'
 
 def t_ARSS(t):
     '\<rss([\ ]+version[\ ]*=[\ ]*"\d.\d"[\ ]*)?>'
@@ -98,7 +96,7 @@ def t_ADESCRIPTION(t):
     r'<description>'
     return t
 
-def t_CDESCRIPCION(t):
+def t_CDESCRIPTION(t):
     r'</description>'
     return t
 
@@ -131,6 +129,11 @@ def t_WIDTH(t):
     '<width>[\ ]*\d*[\ ]*</width>'
     return t
 
+def t_TEXTO(t):
+    '(\s\S)+'
+    return t
+
+
 
 notrecognized=list()
 def t_error(t):
@@ -149,9 +152,9 @@ lexer.input('''
 <?xml version="1.0" encoding="UTF-8" ?>
 <?xml?>
 <rss version="2.0"> 
-<rss>       
+<rss> &
 <channel>
-<title>RSS de la cátedra de Sintaxis y Semántica de Lenguajes </title>
+<title>RSS de l<a cátedra de Sintaxis y Semántica de Lenguajes </title>
 <link>tox:DFB4958A86122ACF81BB852DBC767DB8A3A7281A8EDBC83121B30C294E295869121B298FEEA2</link>
 <description>Sintaxis y Semántica de Lenguajes de la U.T.N.F.R.Resistencia. </description>
 <category>Practica</category>
@@ -184,7 +187,7 @@ practica</description>
 </item> 
 </channel>      
 </rss>
-
+><&
 ''')
  
 
