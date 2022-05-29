@@ -1,6 +1,15 @@
 from re import T
 import ply.lex as lex
 import sys
+#aclaraciones:
+#una URL puede tener el siguiente formato y seguir siendo valido
+#TEXTO:TEXTO es valido
+
+#rss no acepta en todo el documento un '&', se podria llegar a tomar si fuera '&amp' pero sigue sin validarlo el validador de w3
+#un TEXTO no acepta los siguientes caracteres < > en cualquier parte
+#una URL parte de la expresion de TEXTO y esta no permite tampoco <,> ni & segun las especificaciones de RSS
+#LOS TAGS DE RSS SON CASE SENSITIVE OSEA QUE TODOS VAN EN MINUSCULA
+
 tokens=("INICIO",
 "ARSS",
 "CRSS",
@@ -8,20 +17,25 @@ tokens=("INICIO",
 "TEXTO",
 "NUMERO", 
 "CODING", 
-"CATEGORIA",
+"ACATEGORIA",
+"CCATEGORIA", 
 "ACHANNEL",
 "CCHANNEL", 
-"COPY",
-"DESCRIPTION",
+"ACOPY",
+"CCOPY", 
+"ADESCRIPTION",
+"CDESCRIPTION", 
 "AIMAGEN",
 "CIMAGEN", 
 "AITEM",
 "CITEM",
 "ITEM",
 "ITEMS",
-"LINK", 
-"TITULO",  
-"URL",
+"ALINK", 
+"CLINK",  
+"ATITULO",  
+"CTITULO",   
+"URL",  
 "HEIGHT",
 "WIDTH"
 ) 
@@ -29,8 +43,15 @@ tokens=("INICIO",
 def t_newline(t):
     r'\n'
     t.lexer.lineno += len(t.value)#no se que hace esto
+
 def t_s(t):
-    r'\ '
+    r'\ '  
+    #no devolvemos este token porque no nos afecta al leer
+
+def t_TEXTO(t):
+    '[^<>&]+'
+    #EL TEXTO ENCUENTRA TODO SALVO ESTOS CARACTERES QUE SON INVALIDOS PARA CUALQUIER TEXTO Y URL DE RSS
+    return t
 
 def t_ARSS(t):
     '\<rss([\ ]+version[\ ]*=[\ ]*"\d.\d"[\ ]*)?>'
@@ -52,23 +73,42 @@ def t_CCHANNEL(t):
     r'</channel>'
     return t
  
-def t_TITULO(t):
-    '<title>[^<>&]+</title>'
+def t_ATITULO(t):
+    '<title>'
     return t  
 
-def t_LINK(t):  
-    r'<link>[^<>&]+:[^<>]+<\/link>'
+def t_CTITULO(t): 
+    '</title>'
+    return t  
+ 
+def t_ALINK(t):  
+    r'<link>'
+    return t  
+def t_CLINK(t):  
+    r'<\/link>'
     return t 
-def t_CATEGORIA(t):
-    r'<category>.*</category>'
+
+def t_ACATEGORIA(t):
+    r'<category>'
     return t
 
-def t_COPY(t):
-    '<copyright>[^<>&]+</copyright>'
+def t_CCATEGORIA(t):
+    r'</category>'
+    return t
+
+def t_ACOPY(t):
+    '<copyright>'
+    return t 
+    
+def t_CCOPY(t):
+    '</copyright>'
     return t 
 
-def t_DESCRIPTION(t):
-    '<description>[^<>&]+</description>'
+def t_ADESCRIPTION(t):
+    '<description>'
+    return t
+def t_CDESCRIPTION(t):
+    '</description>'
     return t
 
 def t_AIMAGEN(t):
@@ -86,9 +126,10 @@ def t_AITEM(t):
 def t_CITEM(t):
     '</item>'
     return t
+
+#una URL por definicion puede tener el siguiente formato
 def t_URL(t):
-    r'<url>([\ ]*[^<>&]+:[^<>]+[\ ]*)?</url>'
-    
+    r'<url>([\ ]*[^<>&]+:[^<>&]+[\ ]*)?</url>'
     return t
 
 def t_HEIGHT(t):
@@ -102,7 +143,7 @@ def t_WIDTH(t):
 
 notrecognized=list()
 def t_error(t):
-    notrecognized.append(t.value[0])
+    print("se encontró el siguiente token no reconocible ",t.value[0])
     t.lexer.skip(1)
 
 
@@ -111,49 +152,34 @@ lexer= lex.lex() #debug=1 si queremos ver q hace internamente
 
 
 #si empieza en espacios vacios es invalido el RSS
-#si encuentra los siguientes caracteres es invalido: & < >
+#si encuentra los siguientes caracteres es invalido: & < >1
 
-lexer.input('''
-<?xml version="1.0" encoding="UTF-8" ?>
-<?xml?>
-<rss version="2.0"> 
-<rss>       
-<channel>
-<title>RSS de la cátedra de Si<&>ntaxis y Semántica de Lenguajes </title>
-<link>tox:DFB4958A86122ACF81BB852DBC767DB8A3A7281A8EDBC83121B30C294E295869121B298FEEA2</link>
-<description>Sintaxis y Semántica de Lenguajes de la U.T.N.F.R.Resistencia. </description>
-<category>Practica</category>
+entradaRSS=""
+if (len(sys.argv) > 1):#se ingreso un comando agregado con este programa
+    f=open(sys.argv[1],'r')
+    print(f.read())
+else:
+    print("Ingrese 1 para ingresar un RSS por consola y 2 para ingresarlo por archivo")
+    opcion=int(input())
+    if opcion==1:
+        print("empiece a escribir nomas")
+        entra=input()
+        while(entra!='</rss>'):
+            entradaRSS+=entra
+            entra=input()
+    elif opcion==2:
+        print("ingrese el nombre del archivo")
+        entra=input()
+        f=open(entra,"r")
+        entradaRSS=f.read()
+        pass
+    else:
+        print("ingrese una opcion valida")
+        quit()
 
-<image>
-<url>https://frre.cvg.utn.edu.ar/pluginfile.php/29750/theme_snap/coverimage/1584391474/course-image.gif</url>
-<title>encabez&ado imagen SSL</title>
-<link>https://frre.cvg.utn.edu.ar/course/view.php?id=399</link>
-<height>250 </height>
-<width>120 </width>
-</image>
-<item>
-<title>Planificacion 2022</title>
-<link>https://</link>
-<description>Planificacion de catedra, con cronograma de clases y
-evaluaciones</description>
-</item>
-<item>
-<title>Guia de Trabajos practicos</title>
-<link>https://</link>
-<description>Guía de ejercicios propuestos a resolver en clase
-practica</description>
-</item>
-<item>
-<title>Enunciado TPI</title>
-<link>https://wl</link>
-<description>Trabajo práctico integrador</description>
-<category>Practica</category>
 
-</item> 
-</channel>      
-</rss>
 
-''')
+lexer.input(entradaRSS)
  
 
 
@@ -165,4 +191,5 @@ while True:
     if not tok: 
         break      # No more input
     print(tok)
-print(notrecognized)
+
+input()
